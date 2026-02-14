@@ -7,7 +7,7 @@ public class MemberRegistry
         members.Add(member);
     }
 
-    public Member GetMemberById(string memberId)
+    public Member? GetMemberById(string memberId)
     {
         return members.FirstOrDefault(m => m.MemberId == memberId);
     }

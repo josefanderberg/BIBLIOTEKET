@@ -7,7 +7,7 @@ public class BookCatalog
         books.Add(book);
     }
 
-    public Book GetBookByISBN(string isbn)
+    public Book? GetBookByISBN(string isbn)
     {
         return books.FirstOrDefault(b => b.ISBN == isbn);
     }
@@ -22,8 +22,6 @@ public class BookCatalog
         return books.Where(b => b.Matches(searchTerm)).ToList();
     }
 
-
-    
     public List<Book> SortBooksByTitle()
     {
         return books.OrderBy(b => b.Title).ToList();

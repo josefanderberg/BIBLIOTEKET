@@ -32,7 +32,14 @@
                     Console.Clear();
                     Console.Write("Sökterm: ");
                     var term = Console.ReadLine();
-                    library.SearchBooks(term);
+                    if (!string.IsNullOrWhiteSpace(term))
+                    {
+                        library.SearchBooks(term);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Du måste ange en sökterm.");
+                    }
                     Console.WriteLine("\nTryck på valfri tangent för att återgå...");
                     Console.ReadKey();
                     break;
@@ -42,7 +49,14 @@
                     var isbn = Console.ReadLine();
                     Console.Write("Ange medlems-ID: ");
                     var memberId = Console.ReadLine();
-                    library.BorrowBook(isbn, memberId);
+                    if (!string.IsNullOrWhiteSpace(isbn) && !string.IsNullOrWhiteSpace(memberId))
+                    {
+                        library.BorrowBook(isbn, memberId);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Felaktig inmatning. Både ISBN och Medlems-ID krävs.");
+                    }
                     Console.WriteLine("\nTryck på valfri tangent för att återgå...");
                     Console.ReadKey();
                     break;
@@ -52,7 +66,14 @@
                     var rIsbn = Console.ReadLine();
                     Console.Write("Ange medlems-ID: ");
                     var rMemberId = Console.ReadLine();
-                    library.ReturnBook(rIsbn, rMemberId);
+                    if (!string.IsNullOrWhiteSpace(rIsbn) && !string.IsNullOrWhiteSpace(rMemberId))
+                    {
+                        library.ReturnBook(rIsbn, rMemberId);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Felaktig inmatning. Både ISBN och Medlems-ID krävs.");
+                    }
                     Console.WriteLine("\nTryck på valfri tangent för att återgå...");
                     Console.ReadKey();
                     break;
