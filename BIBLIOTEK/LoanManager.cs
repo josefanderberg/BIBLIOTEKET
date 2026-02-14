@@ -41,6 +41,11 @@ public class LoanManager
     public int GetTotalLoanCount()
     {
         return loans.Count;
+    }
+
+    public int GetActiveLoanCount()
+    {
+        return loans.Count(l => !l.IsReturned);
     }   
 
 }

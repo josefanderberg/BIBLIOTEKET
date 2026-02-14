@@ -14,9 +14,9 @@ public class Library
     public void ListAllBooks()
     {
         var books = bookCatalog.GetAllBooks();
-        foreach (var book in books)
+        for (int i = 0; i < books.Count; i++)
         {
-            Console.WriteLine(book.GetInfo());
+            Console.WriteLine($"{i + 1}. {books[i].GetInfo()}");
         }
     }
     
@@ -29,9 +29,9 @@ public class Library
         }
         else
         {
-            foreach (var book in results)
+            for (int i = 0; i < results.Count; i++)
             {
-                Console.WriteLine(book.GetInfo());
+                Console.WriteLine($"{i + 1}. {results[i].GetInfo()}");
             }
         }
     }
@@ -46,9 +46,9 @@ public class Library
     public void ListAllMembers()
     {
         var members = memberRegistry.GetAllMembers();
-        foreach (var member in members)
+        for (int i = 0; i < members.Count; i++)
         {
-            Console.WriteLine(member.GetInfo());
+            Console.WriteLine($"{i + 1}. {members[i].GetInfo()}");
         }
     }
 
@@ -111,6 +111,6 @@ public class Library
     public void ShowStatistics()
     {
         Console.WriteLine($"Total Books: {bookCatalog.GetTotalBookCount()}");
-        Console.WriteLine($"Active Loans: {loanManager.GetTotalLoanCount()}"); // Using total count for now, maybe want active count later
+        Console.WriteLine($"Active Loans: {loanManager.GetActiveLoanCount()}");
     }
 }

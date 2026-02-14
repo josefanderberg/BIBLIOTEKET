@@ -29,7 +29,7 @@ public class Member : ISearchable
 
     public string GetInfo()
     {
-        return $"Member ID: {MemberId}, Name: {Name}, Email: {Email}, Member Since: {MemberSince.ToShortDateString()}, Borrowed Books: {borrowedBooks.Count}";
+        return $"{Name} (ID: {MemberId}) - E-post: {Email}";
     }       
 
     public bool Matches(string searchTerm)

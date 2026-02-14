@@ -17,7 +17,8 @@ public class Book : ISearchable
 
     public string GetInfo()
     {
-        return $"Title: {Title}, Author: {Author}, ISBN: {ISBN}, Published: {PublishedYear}, Available: {IsAvailable}";
+        string status = IsAvailable ? "Tillgänglig" : "Utlånad";
+        return $"\"{Title}\" av {Author} ({PublishedYear}) - {status}\n\tISBN: {ISBN}";
     }
 
     public bool Matches(string searchTerm)

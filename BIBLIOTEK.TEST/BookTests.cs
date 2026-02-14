@@ -8,23 +8,32 @@ namespace BIBLIOTEK.TEST
         [Fact]
         public void Constructor_ShouldSetPropertiesCorrectly()
         {
-            // Arrange & Act
-            var book = new Book("978-91-0-012345-6", "Testbok", "Testförfattare", 2024);
+            // Arrange
+            var isbn = "978-91-0-012345-6";
+            var title = "Testbok";
+            var author = "Testförfattare";
+            var year = 2024;
+
+            // Act
+            var book = new Book(isbn, title, author, year);
 
             // Assert
-            Assert.Equal("978-91-0-012345-6", book.ISBN);
-            Assert.Equal("Testbok", book.Title);
+            Assert.Equal(isbn, book.ISBN);
+            Assert.Equal(title, book.Title);
             Assert.True(book.IsAvailable);
         }
 
         [Fact]
         public void IsAvailable_ShouldBeTrueForNewBook()
         {
-            // Arrange & Act
+            // Arrange
             var book = new Book("123", "Title", "Author", 2024);
 
+            // Act
+            var isAvailable = book.IsAvailable;
+
             // Assert
-            Assert.True(book.IsAvailable);
+            Assert.True(isAvailable);
         }
 
         [Fact]
