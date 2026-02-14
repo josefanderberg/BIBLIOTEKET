@@ -1,4 +1,4 @@
-public class Member
+public class Member : ISearchable
 {
     public string MemberId { get; }
     public string Name { get; set; }
@@ -25,12 +25,19 @@ public class Member
         borrowedBooks.Remove(book);
     }
 
-    public void GetInfo()
+    public IReadOnlyList<Book> BorrowedBooks => borrowedBooks.AsReadOnly();
+
+    public string GetInfo()
     {
-        Console.WriteLine($"Member ID: {MemberId}");
-        Console.WriteLine($"Name: {Name}");
-        Console.WriteLine($"Email: {Email}");
-        Console.WriteLine($"Member Since: {MemberSince}");
-        Console.WriteLine($"Borrowed Books: {borrowedBooks.Count}");
+        return $"Member ID: {MemberId}, Name: {Name}, Email: {Email}, Member Since: {MemberSince.ToShortDateString()}, Borrowed Books: {borrowedBooks.Count}";
     }       
+
+    public bool Matches(string searchTerm)
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm)) return false;
+        searchTerm = searchTerm.ToLower();
+        return Name.ToLower().Contains(searchTerm) || 
+               Email.ToLower().Contains(searchTerm) || 
+               MemberId.ToLower().Contains(searchTerm);
+    }
 }

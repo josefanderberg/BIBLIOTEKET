@@ -1,4 +1,4 @@
-public class Book
+public class Book : ISearchable
 {
     public string ISBN { get; }
     public string Title { get; set; }
@@ -15,12 +15,17 @@ public class Book
         IsAvailable = true;
     }
 
-    public void GetInfo()           
+    public string GetInfo()
     {
-        Console.WriteLine($"ISBN: {ISBN}");
-        Console.WriteLine($"Title: {Title}");
-        Console.WriteLine($"Author: {Author}");
-        Console.WriteLine($"Published Year: {PublishedYear}");
-        Console.WriteLine($"Is Available: {IsAvailable}");
+        return $"Title: {Title}, Author: {Author}, ISBN: {ISBN}, Published: {PublishedYear}, Available: {IsAvailable}";
+    }
+
+    public bool Matches(string searchTerm)
+    {
+        if (string.IsNullOrWhiteSpace(searchTerm)) return false;
+        searchTerm = searchTerm.ToLower();
+        return Title.ToLower().Contains(searchTerm) || 
+               Author.ToLower().Contains(searchTerm) || 
+               ISBN.Contains(searchTerm);
     }
 }   
