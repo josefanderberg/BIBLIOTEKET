@@ -22,6 +22,18 @@ public class BookCatalog
         return books.Where(b => b.Matches(searchTerm)).ToList();
     }
 
+
+    
+    public List<Book> SortBooksByTitle()
+    {
+        return books.OrderBy(b => b.Title).ToList();
+    }
+
+    public List<Book> SortBooksByYear()
+    {
+        return books.OrderBy(b => b.PublishedYear).ToList();
+    }
+
     public int GetTotalBookCount()
     {
         return books.Count;
