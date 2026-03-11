@@ -1,45 +1,83 @@
-# Bibliotekssystem - Inlämningsuppgift Del 1
+# Bibliotekssystem 2.0
 
-Detta är ett konsolbaserat bibliotekssystem utvecklat i C# .NET 9.0.
+Ett bibliotekshanteringssystem byggt med .NET 9, Entity Framework Core och Blazor Server.
 
-## Lösning och Designval
+## Projektstruktur
 
-Jag har valt att implementera lösningen baserat på **Alternativ B: Komposition**.
+```
+BIBLIOTEK/
+├── BIBLIOTEK/              # Konsolapplikation (Del 1)
+├── BIBLIOTEK.Core/         # Domänmodeller och interfaces
+├── BIBLIOTEK.Data/         # Entity Framework, DbContext, Repository
+├── BIBLIOTEK.Web/          # Blazor Server webbgränssnitt
+└── BIBLIOTEK.TEST/         # Enhetstester (xUnit)
+```
 
-### Arkitektur
-Systemet är uppbyggt kring en central `Library`-klass som agerar som fasad/koordinator. Istället för att låta denna klass göra allt arbete, delegeras ansvaret till specialiserade "hjälpklasser" (managers):
+## Köra projektet
 
-1.  **BookCatalog:** Ansvarar för bibliotekets bokbestånd. Den hanterar lagring, sökning och sortering av böcker.
-2.  **MemberRegistry:** Ansvarar för medlemsregistret. Den hanterar lagring och sökning av medlemmar.
-3.  **LoanManager:** Ansvarar för utlåningslogiken. Den sköter kopplingen mellan en bok och en medlem, samt håller koll på förfallodatum.
+### Webbgränssnitt (Blazor)
+```bash
+cd BIBLIOTEK.Web
+dotnet run
+```
+Öppna sedan `http://localhost:5146` i webbläsaren.
 
-Detta designmönster (Komposition) gör koden modulär och lättare att underhålla. Varje klass har ett tydligt ansvarsområde (Single Responsibility Principle).
+### Konsolapplikation
+```bash
+cd BIBLIOTEK
+dotnet run
+```
 
-### Klasser
-*   `Book` & `Member`: Dataklasser som implementerar `ISearchable`-interfacet för enhetlig sökning.
-*   `Loan`: Representerar ett lån med koppling till bok och medlem, samt logik för förfallodatum (`IsOverdue`).
-*   `Library`: Huvudklassen som binder ihop allt och erbjuder metoder som `BorrowBook` och `ReturnBook` till användargränssnittet.
+### Köra tester
+```bash
+dotnet test
+```
 
-## Hur man kör programmet
+## Databasmodell
 
-1.  Öppna terminalen i projektmappen `BIBLIOTEK/BIBLIOTEK`.
-2.  Kör kommandot:
-    ```bash
-    dotnet run
-    ```
-3.  Följ menyvalen i konsolen för att hantera böcker, medlemmar och lån.
+Systemet använder SQLite med Entity Framework Core. Databasen skapas automatiskt vid första körning.
+
+### Tabeller
+
+| Tabell | Beskrivning |
+|--------|-------------|
+| **Books** | Böcker med ISBN, titel, författare, utgivningsår och tillgänglighet |
+| **Members** | Medlemmar med medlems-ID, namn, e-post och registreringsdatum |
+| **Loans** | Lån som kopplar ihop bok och medlem med datum |
+
+### Relationer
+
+```
+Book (1) ──── (*) Loan (*) ──── (1) Member
+```
+
+- En bok kan ha många lån (lånehistorik)
+- En medlem kan ha många lån
+- Varje lån refererar till exakt en bok och en medlem
+
+## Blazor-sidor
+
+| Sida | URL | Funktioner |
+|------|-----|------------|
+| Hem | `/` | Välkomst + statistik (antal böcker, medlemmar, aktiva lån) |
+| Böcker | `/books` | Lista, sök, sortering, lägg till bok, ta bort |
+| Bokdetaljer | `/books/{id}` | Detaljerad info, lånehistorik, låna/returnera |
+| Medlemmar | `/members` | Lista med aktiva lån per medlem, registrera ny medlem |
+| Utlåning | `/loans` | Skapa nytt lån, aktiva lån, markering av försenade |
+
+## Teknologi
+
+- **.NET 9.0**
+- **Entity Framework Core 9.0.2** (SQLite)
+- **Blazor Server**
+- **xUnit** (enhetstester)
+- **InMemory Database** (för testning)
 
 ## Tester
 
-Projektet innehåller en uppsättning enhetstester implementerade med **xUnit**. Testerna täcker:
-*   Bokhantering och properties.
-*   Lånelogik (förfallodatum, återlämning).
-*   Sökfunktionalitet (`ISearchable`).
-*   Statistik och sortering.
+Projektet innehåller enhetstester för:
+- Repository-operationer (CRUD)
+- Sökfunktionalitet
+- Databasintegrationer (lån + boktillgänglighet)
 
-För att köra testerna:
-1.  Gå till testprojektets mapp `BIBLIOTEK/BIBLIOTEK.TEST`.
-2.  Kör kommandot:
-    ```bash
-    dotnet test
-    ```
+Kör alla tester med `dotnet test`.
