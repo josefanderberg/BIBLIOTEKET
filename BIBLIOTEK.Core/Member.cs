@@ -1,9 +1,12 @@
 public class Member : ISearchable
 {
+    public int Id { get; set; }
     public string MemberId { get; }
     public string Name { get; set; }
     public string Email { get; set; }
     public DateTime MemberSince { get; set; }    
+    public ICollection<Loan> Loans { get; set; } = new List<Loan>();
+
 
     private List<Book> borrowedBooks = new List<Book>();
 
