@@ -1,3 +1,5 @@
+namespace BIBLIOTEK.Core;
+
 public class Loan
 {
     public int Id { get; set; }
@@ -18,6 +20,9 @@ public class Loan
     
     // Beräknad property
     public bool IsOverdue => !IsReturned && DateTime.Now > DueDate;
+
+    // Parameterlös konstruktor krävs av Entity Framework
+    public Loan() { }
 
     public Loan(Book book, Member member, DateTime loanDate, DateTime dueDate)
     {

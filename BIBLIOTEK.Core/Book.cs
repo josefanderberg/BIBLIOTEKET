@@ -1,10 +1,18 @@
+namespace BIBLIOTEK.Core;
+
 public class Book : ISearchable
 {
-    public string ISBN { get; }
+    public int Id { get; set; }
+    public string ISBN { get; set; } = string.Empty;
     public string Title { get; set; }
     public string Author { get; set; }
     public int PublishedYear { get; set; }
     public bool IsAvailable { get; set; }    
+    public ICollection<Loan> Loans { get; set; } = new List<Loan>();
+
+
+    // Parameterlös konstruktor krävs av Entity Framework
+    public Book() { }
 
     public Book(string isbn, string title, string author, int publishedYear)
     {

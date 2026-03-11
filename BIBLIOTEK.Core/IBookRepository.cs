@@ -1,3 +1,5 @@
+namespace BIBLIOTEK.Core;
+
 public interface IBookRepository
 {
     Task<IEnumerable<Book>> GetAllBooksAsync();

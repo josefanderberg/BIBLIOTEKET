@@ -1,3 +1,5 @@
+namespace BIBLIOTEK.Core;
+
 public class LoanManager
 {
     private List<Loan> loans = new List<Loan>();

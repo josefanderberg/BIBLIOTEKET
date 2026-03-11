@@ -1,3 +1,5 @@
+namespace BIBLIOTEK.Core;
+
 public class Library
 {
     private BookCatalog bookCatalog = new BookCatalog();

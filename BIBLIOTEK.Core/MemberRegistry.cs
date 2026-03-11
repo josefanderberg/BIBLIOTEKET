@@ -1,3 +1,5 @@
+namespace BIBLIOTEK.Core;
+
 public class MemberRegistry
 {
     private List<Member> members = new List<Member>();

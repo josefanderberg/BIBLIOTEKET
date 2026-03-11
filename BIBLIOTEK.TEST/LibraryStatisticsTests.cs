@@ -1,4 +1,4 @@
-using BIBLIOTEK;
+using BIBLIOTEK.Core;
 using Xunit;
 
 namespace BIBLIOTEK.TEST

@@ -1,4 +1,6 @@
-﻿class Program
+﻿using BIBLIOTEK.Core;
+
+class Program
 {
     static void Main(string[] args)
     {

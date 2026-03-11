@@ -1,7 +1,9 @@
+namespace BIBLIOTEK.Core;
+
 public class Member : ISearchable
 {
     public int Id { get; set; }
-    public string MemberId { get; }
+    public string MemberId { get; set; } = string.Empty;
     public string Name { get; set; }
     public string Email { get; set; }
     public DateTime MemberSince { get; set; }    
@@ -9,6 +11,9 @@ public class Member : ISearchable
 
 
     private List<Book> borrowedBooks = new List<Book>();
+
+    // Parameterlös konstruktor krävs av Entity Framework
+    public Member() { }
 
     public Member(string memberId, string name, string email)
     {

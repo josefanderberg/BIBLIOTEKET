@@ -1,4 +1,4 @@
-using BIBLIOTEK; // Need to verify namespace
+using BIBLIOTEK.Core; // Need to verify namespace
 using Xunit;
 
 namespace BIBLIOTEK.TEST
