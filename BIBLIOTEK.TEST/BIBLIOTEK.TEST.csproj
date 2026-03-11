@@ -23,6 +23,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\BIBLIOTEK\BIBLIOTEK.csproj" />
+      <ProjectReference Include="..\BIBLIOTEK.Core\BIBLIOTEK.Core.csproj" />
     </ItemGroup>
 
 </Project>
