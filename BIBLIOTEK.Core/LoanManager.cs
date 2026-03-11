@@ -10,7 +10,7 @@ public class LoanManager
         }
 
         // Create a new loan
-        var loan = new Loan(Guid.NewGuid().ToString().Substring(0, 8), book, member, DateTime.Now, DateTime.Now.AddDays(15));
+        var loan = new Loan(book, member, DateTime.Now, DateTime.Now.AddDays(15));
         
         loans.Add(loan);
         

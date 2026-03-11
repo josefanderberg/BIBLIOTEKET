@@ -19,9 +19,8 @@ public class Loan
     // Beräknad property
     public bool IsOverdue => !IsReturned && DateTime.Now > DueDate;
 
-    public Loan(string loanId, Book book, Member member, DateTime loanDate, DateTime dueDate)
+    public Loan(Book book, Member member, DateTime loanDate, DateTime dueDate)
     {
-        LoanId = loanId;
         Book = book;
         Member = member;
         LoanDate = loanDate;
@@ -40,6 +39,6 @@ public class Loan
 
     public string GetInfo()
     {
-        return $"Loan ID: {LoanId}, Book: {Book.Title}, Member: {Member.Name}, Due: {DueDate.ToShortDateString()}, Returned: {IsReturned}";
+        return $"Loan ID: {Id}, Book: {Book.Title}, Member: {Member.Name}, Due: {DueDate.ToShortDateString()}, Returned: {IsReturned}";
     }       
 }   

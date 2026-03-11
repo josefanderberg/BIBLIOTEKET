@@ -18,4 +18,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\BIBLIOTEK.Core\BIBLIOTEK.Core.csproj" />
+  </ItemGroup>
+
 </Project>
