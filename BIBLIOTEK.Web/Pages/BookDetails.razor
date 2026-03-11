@@ -1,0 +1,171 @@
+@page "/books/{Id:int}"
+@inject LibraryContext Context
+@inject NavigationManager Navigation
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Bokdetaljer</PageTitle>
+
+@if (book == null)
+{
+    <p><em>Laddar bokdetaljer...</em></p>
+}
+else
+{
+    <h1>@book.Title</h1>
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>ISBN:</strong> @book.ISBN</p>
+                    <p><strong>Författare:</strong> @book.Author</p>
+                    <p><strong>Utgivningsår:</strong> @book.PublishedYear</p>
+                    <p>
+                        <strong>Status:</strong>
+                        @if (book.IsAvailable)
+                        {
+                            <span class="badge bg-success">🟢 Tillgänglig</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">🔴 Utlånad</span>
+                        }
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    @if (book.IsAvailable)
+                    {
+                        <h5>Låna denna bok</h5>
+                        <div class="input-group">
+                            <select class="form-select" @bind="selectedMemberId">
+                                <option value="0">Välj medlem...</option>
+                                @foreach (var member in members)
+                                {
+                                    <option value="@member.Id">@member.Name</option>
+                                }
+                            </select>
+                            <button class="btn btn-primary" @onclick="BorrowBook">Låna</button>
+                        </div>
+                    }
+                    else
+                    {
+                        <button class="btn btn-warning" @onclick="ReturnBook">Returnera bok</button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3>Lånehistorik</h3>
+    @if (book.Loans != null && book.Loans.Any())
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Låntagare</th>
+                    <th>Lånedatum</th>
+                    <th>Förfallodatum</th>
+                    <th>Returnerad</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var loan in book.Loans.OrderByDescending(l => l.LoanDate))
+                {
+                    <tr>
+                        <td>@loan.Member?.Name</td>
+                        <td>@loan.LoanDate.ToShortDateString()</td>
+                        <td>@loan.DueDate.ToShortDateString()</td>
+                        <td>@(loan.ReturnDate?.ToShortDateString() ?? "-")</td>
+                        <td>
+                            @if (loan.IsReturned)
+                            {
+                                <span class="badge bg-secondary">Returnerad</span>
+                            }
+                            else if (loan.IsOverdue)
+                            {
+                                <span class="badge bg-danger">Försenad!</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-info">Aktiv</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p><em>Ingen lånehistorik för denna bok.</em></p>
+    }
+
+    <a href="books" class="btn btn-outline-secondary mt-3">← Tillbaka till boklistan</a>
+}
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-info mt-3">@message</div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Book? book;
+    private List<Member> members = new();
+    private int selectedMemberId;
+    private string message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadBook();
+        members = await Context.Members.ToListAsync();
+    }
+
+    private async Task LoadBook()
+    {
+        book = await Context.Books
+            .Include(b => b.Loans)
+            .ThenInclude(l => l.Member)
+            .FirstOrDefaultAsync(b => b.Id == Id);
+    }
+
+    private async Task BorrowBook()
+    {
+        if (selectedMemberId == 0)
+        {
+            message = "Välj en medlem först!";
+            return;
+        }
+
+        var member = await Context.Members.FindAsync(selectedMemberId);
+        if (member == null || book == null) return;
+
+        var loan = new Loan(book, member, DateTime.Now, DateTime.Now.AddDays(14));
+        book.IsAvailable = false;
+        Context.Loans.Add(loan);
+        await Context.SaveChangesAsync();
+
+        message = $"Boken har lånats till {member.Name}!";
+        await LoadBook();
+    }
+
+    private async Task ReturnBook()
+    {
+        if (book == null) return;
+
+        var activeLoan = await Context.Loans
+            .Include(l => l.Member)
+            .FirstOrDefaultAsync(l => l.BookId == book.Id && l.ReturnDate == null);
+
+        if (activeLoan != null)
+        {
+            activeLoan.ReturnDate = DateTime.Now;
+            book.IsAvailable = true;
+            await Context.SaveChangesAsync();
+            message = "Boken har returnerats!";
+            await LoadBook();
+        }
+    }
+}

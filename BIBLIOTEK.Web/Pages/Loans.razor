@@ -1,0 +1,154 @@
+@page "/loans"
+@inject LibraryContext Context
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Utlåning</PageTitle>
+
+<h1>🔄 Utlåning</h1>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <h5>Skapa nytt lån</h5>
+        <div class="row">
+            <div class="col-md-4">
+                <label>Välj bok</label>
+                <select class="form-select" @bind="selectedBookId">
+                    <option value="0">Välj en bok...</option>
+                    @foreach (var book in availableBooks)
+                    {
+                        <option value="@book.Id">@book.Title (@book.ISBN)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label>Välj medlem</label>
+                <select class="form-select" @bind="selectedMemberId">
+                    <option value="0">Välj en medlem...</option>
+                    @foreach (var member in allMembers)
+                    {
+                        <option value="@member.Id">@member.Name (@member.MemberId)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <button class="btn btn-primary" @onclick="CreateLoan">Skapa lån</button>
+            </div>
+        </div>
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div class="alert alert-info mt-2">@message</div>
+        }
+    </div>
+</div>
+
+<h3>Aktiva lån</h3>
+@if (activeLoans == null)
+{
+    <p><em>Laddar lån...</em></p>
+}
+else if (!activeLoans.Any())
+{
+    <p><em>Inga aktiva lån.</em></p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Bok</th>
+                <th>Låntagare</th>
+                <th>Lånedatum</th>
+                <th>Förfallodatum</th>
+                <th>Status</th>
+                <th>Åtgärd</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var loan in activeLoans)
+            {
+                <tr class="@(loan.IsOverdue ? "table-danger" : "")">
+                    <td>@loan.Book?.Title</td>
+                    <td>@loan.Member?.Name</td>
+                    <td>@loan.LoanDate.ToShortDateString()</td>
+                    <td>@loan.DueDate.ToShortDateString()</td>
+                    <td>
+                        @if (loan.IsOverdue)
+                        {
+                            <span class="badge bg-danger">⚠️ Försenad</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-info">Aktiv</span>
+                        }
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" @onclick="() => ReturnLoan(loan)">Returnera</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Loan>? activeLoans;
+    private List<Book> availableBooks = new();
+    private List<Member> allMembers = new();
+    private int selectedBookId;
+    private int selectedMemberId;
+    private string message = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        activeLoans = await Context.Loans
+            .Include(l => l.Book)
+            .Include(l => l.Member)
+            .Where(l => l.ReturnDate == null)
+            .ToListAsync();
+
+        availableBooks = await Context.Books
+            .Where(b => b.IsAvailable)
+            .ToListAsync();
+
+        allMembers = await Context.Members.ToListAsync();
+    }
+
+    private async Task CreateLoan()
+    {
+        if (selectedBookId == 0 || selectedMemberId == 0)
+        {
+            message = "Välj både bok och medlem!";
+            return;
+        }
+
+        var book = await Context.Books.FindAsync(selectedBookId);
+        var member = await Context.Members.FindAsync(selectedMemberId);
+
+        if (book == null || member == null) return;
+
+        var loan = new Loan(book, member, DateTime.Now, DateTime.Now.AddDays(14));
+        book.IsAvailable = false;
+        Context.Loans.Add(loan);
+        await Context.SaveChangesAsync();
+
+        message = $"Lån skapat: {book.Title} till {member.Name}";
+        selectedBookId = 0;
+        selectedMemberId = 0;
+        await LoadData();
+    }
+
+    private async Task ReturnLoan(Loan loan)
+    {
+        loan.ReturnDate = DateTime.Now;
+        if (loan.Book != null)
+            loan.Book.IsAvailable = true;
+        await Context.SaveChangesAsync();
+        message = $"Returnerat: {loan.Book?.Title}";
+        await LoadData();
+    }
+}

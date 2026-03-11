@@ -13,7 +13,7 @@ public class Loan
 
     public DateTime LoanDate { get; set; }
     public DateTime DueDate { get; set; }
-    public DateTime? ReturnDate { get; private set; }
+    public DateTime? ReturnDate { get; set; }
     
     // Beräknad property
     public bool IsReturned => ReturnDate.HasValue;

@@ -1,0 +1,14 @@
+<div class="card mb-2 @(Book.IsAvailable ? "border-success" : "border-danger")">
+    <div class="card-body">
+        <h5 class="card-title">@Book.Title</h5>
+        <p class="card-text">@Book.Author (@Book.PublishedYear)</p>
+        <span class="badge @(Book.IsAvailable ? "bg-success" : "bg-danger")">
+            @(Book.IsAvailable ? "🟢 Tillgänglig" : "🔴 Utlånad")
+        </span>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public Book Book { get; set; } = default!;
+}

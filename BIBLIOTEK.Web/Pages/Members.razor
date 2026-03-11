@@ -1,0 +1,113 @@
+@page "/members"
+@inject LibraryContext Context
+@using Microsoft.EntityFrameworkCore
+
+<PageTitle>Medlemmar</PageTitle>
+
+<h1>👥 Medlemmar</h1>
+
+<div class="row mb-3">
+    <div class="col-md-6"></div>
+    <div class="col-md-6 text-end">
+        <button class="btn btn-primary" @onclick="ShowAddForm">+ Registrera ny medlem</button>
+    </div>
+</div>
+
+@if (showForm)
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5>Registrera ny medlem</h5>
+            <EditForm Model="@newMember" OnValidSubmit="AddMember">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="row">
+                    <div class="col-md-3">
+                        <label>Medlems-ID</label>
+                        <InputText @bind-Value="newMember.MemberId" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <label>Namn</label>
+                        <InputText @bind-Value="newMember.Name" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>E-post</label>
+                        <InputText @bind-Value="newMember.Email" class="form-control" />
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-success">Spara</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@if (members == null)
+{
+    <p><em>Laddar medlemmar...</em></p>
+}
+else
+{
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Medlems-ID</th>
+                <th>Namn</th>
+                <th>E-post</th>
+                <th>Medlem sedan</th>
+                <th>Aktiva lån</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var member in members)
+            {
+                <tr>
+                    <td>@member.MemberId</td>
+                    <td>@member.Name</td>
+                    <td>@member.Email</td>
+                    <td>@member.MemberSince.ToShortDateString()</td>
+                    <td>
+                        <span class="badge bg-info">
+                            @member.Loans.Count(l => l.ReturnDate == null)
+                        </span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Member>? members;
+    private bool showForm = false;
+    private Member newMember = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMembers();
+    }
+
+    private async Task LoadMembers()
+    {
+        members = await Context.Members
+            .Include(m => m.Loans)
+            .ToListAsync();
+    }
+
+    private void ShowAddForm()
+    {
+        showForm = !showForm;
+        newMember = new Member();
+    }
+
+    private async Task AddMember()
+    {
+        newMember.MemberSince = DateTime.Now;
+        Context.Members.Add(newMember);
+        await Context.SaveChangesAsync();
+        newMember = new Member();
+        showForm = false;
+        await LoadMembers();
+    }
+}
