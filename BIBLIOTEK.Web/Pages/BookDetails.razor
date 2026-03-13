@@ -60,25 +60,14 @@ else
     <h3>Lånehistorik</h3>
     @if (book.Loans != null && book.Loans.Any())
     {
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Låntagare</th>
-                    <th>Lånedatum</th>
-                    <th>Förfallodatum</th>
-                    <th>Returnerad</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var loan in book.Loans.OrderByDescending(l => l.LoanDate))
-                {
-                    <tr>
-                        <td>@loan.Member?.Name</td>
-                        <td>@loan.LoanDate.ToShortDateString()</td>
-                        <td>@loan.DueDate.ToShortDateString()</td>
-                        <td>@(loan.ReturnDate?.ToShortDateString() ?? "-")</td>
-                        <td>
+        @* Mobil-vy: Kort-layout *@
+        <div class="d-md-none">
+            @foreach (var loan in book.Loans.OrderByDescending(l => l.LoanDate))
+            {
+                <div class="card mb-2 shadow-sm border-start @(loan.IsReturned ? "border-secondary" : loan.IsOverdue ? "border-danger" : "border-info") border-4">
+                    <div class="card-body py-2">
+                        <div class="d-flex justify-content-between align-items-start mb-1">
+                            <strong>@loan.Member?.Name</strong>
                             @if (loan.IsReturned)
                             {
                                 <span class="badge bg-secondary">Returnerad</span>
@@ -91,11 +80,57 @@ else
                             {
                                 <span class="badge bg-info">Aktiv</span>
                             }
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                        </div>
+                        <div class="row small text-muted">
+                            <div class="col-6">Utlånad: @loan.LoanDate.ToShortDateString()</div>
+                            <div class="col-6 text-end">@(loan.ReturnDate.HasValue ? "Retur: " + loan.ReturnDate.Value.ToShortDateString() : "Förfaller: " + loan.DueDate.ToShortDateString())</div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @* Skrivbords-vy: Tabell *@
+        <div class="d-none d-md-block">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Låntagare</th>
+                            <th>Lånedatum</th>
+                            <th>Förfallodatum</th>
+                            <th>Returnerad</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var loan in book.Loans.OrderByDescending(l => l.LoanDate))
+                        {
+                            <tr>
+                                <td>@loan.Member?.Name</td>
+                                <td>@loan.LoanDate.ToShortDateString()</td>
+                                <td>@loan.DueDate.ToShortDateString()</td>
+                                <td>@(loan.ReturnDate?.ToShortDateString() ?? "-")</td>
+                                <td>
+                                    @if (loan.IsReturned)
+                                    {
+                                        <span class="badge bg-secondary">Returnerad</span>
+                                    }
+                                    else if (loan.IsOverdue)
+                                    {
+                                        <span class="badge bg-danger">Försenad!</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-info">Aktiv</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
     }
     else
     {

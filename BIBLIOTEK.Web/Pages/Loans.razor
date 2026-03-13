@@ -54,26 +54,14 @@ else if (!activeLoans.Any())
 }
 else
 {
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Bok</th>
-                <th>Låntagare</th>
-                <th>Lånedatum</th>
-                <th>Förfallodatum</th>
-                <th>Status</th>
-                <th>Åtgärd</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var loan in activeLoans)
-            {
-                <tr class="@(loan.IsOverdue ? "table-danger" : "")">
-                    <td>@loan.Book?.Title</td>
-                    <td>@loan.Member?.Name</td>
-                    <td>@loan.LoanDate.ToShortDateString()</td>
-                    <td>@loan.DueDate.ToShortDateString()</td>
-                    <td>
+    @* Mobil-vy *@
+    <div class="d-md-none">
+        @foreach (var loan in activeLoans)
+        {
+            <div class="card mb-3 shadow-sm @(loan.IsOverdue ? "border-start border-danger border-4" : "border-start border-info border-4")">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="card-title mb-0">@loan.Book?.Title</h6>
                         @if (loan.IsOverdue)
                         {
                             <span class="badge bg-danger">⚠️ Försenad</span>
@@ -82,14 +70,61 @@ else
                         {
                             <span class="badge bg-info">Aktiv</span>
                         }
-                    </td>
-                    <td>
-                        <button class="btn btn-sm btn-warning" @onclick="() => ReturnLoan(loan)">Returnera</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                    </div>
+                    <p class="small mb-1"><strong>Låntagare:</strong> @loan.Member?.Name</p>
+                    <p class="small mb-1 text-muted">Lånades: @loan.LoanDate.ToShortDateString()</p>
+                    <p class="small mb-3 @(loan.IsOverdue ? "text-danger fw-bold" : "text-muted")">
+                        Förfaller: @loan.DueDate.ToShortDateString()
+                    </p>
+                    <div class="d-grid">
+                        <button class="btn btn-warning btn-sm" @onclick="() => ReturnLoan(loan)">Returnera</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @* Skrivbords-vy *@
+    <div class="d-none d-md-block">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Bok</th>
+                        <th>Låntagare</th>
+                        <th>Lånedatum</th>
+                        <th>Förfallodatum</th>
+                        <th>Status</th>
+                        <th>Åtgärd</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var loan in activeLoans)
+                    {
+                        <tr class="@(loan.IsOverdue ? "table-danger" : "")">
+                            <td>@loan.Book?.Title</td>
+                            <td>@loan.Member?.Name</td>
+                            <td>@loan.LoanDate.ToShortDateString()</td>
+                            <td>@loan.DueDate.ToShortDateString()</td>
+                            <td>
+                                @if (loan.IsOverdue)
+                                {
+                                    <span class="badge bg-danger">⚠️ Försenad</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-info">Aktiv</span>
+                                }
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-warning" @onclick="() => ReturnLoan(loan)">Returnera</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 }
 
 @code {
