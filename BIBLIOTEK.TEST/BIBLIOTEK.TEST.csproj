@@ -18,7 +18,7 @@
           <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.2" />
-        <PackageReference Include="bunit" Version="1.38.47" />
+        <PackageReference Include="bunit" Version="1.39.5" />
     </ItemGroup>
 
 
@@ -27,6 +27,7 @@
       <ProjectReference Include="..\BIBLIOTEK\BIBLIOTEK.csproj" />
       <ProjectReference Include="..\BIBLIOTEK.Core\BIBLIOTEK.Core.csproj" />
       <ProjectReference Include="..\BIBLIOTEK.Data\BIBLIOTEK.Data.csproj" />
+      <ProjectReference Include="..\BIBLIOTEK.Web\BIBLIOTEK.Web.csproj" />
     </ItemGroup>
 
 </Project>

@@ -4,8 +4,8 @@ public class Member : ISearchable
 {
     public int Id { get; set; }
     public string MemberId { get; set; } = string.Empty;
-    public string Name { get; set; }
-    public string Email { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Email { get; set; } = string.Empty;
     public DateTime MemberSince { get; set; }    
     public ICollection<Loan> Loans { get; set; } = new List<Loan>();
 
