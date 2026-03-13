@@ -1,6 +1,8 @@
 @page "/loans"
-@inject LibraryContext Context
-@using Microsoft.EntityFrameworkCore
+@inject ILoanRepository LoanRepo
+@inject IBookRepository BookRepo
+@inject IMemberRepository MemberRepo
+@using BIBLIOTEK.Core
 
 <PageTitle>Utlåning</PageTitle>
 
@@ -91,9 +93,9 @@ else
 }
 
 @code {
-    private List<Loan>? activeLoans;
-    private List<Book> availableBooks = new();
-    private List<Member> allMembers = new();
+    private IEnumerable<Loan>? activeLoans;
+    private IEnumerable<Book> availableBooks = new List<Book>();
+    private IEnumerable<Member> allMembers = new List<Member>();
     private int selectedBookId;
     private int selectedMemberId;
     private string message = "";
@@ -105,17 +107,9 @@ else
 
     private async Task LoadData()
     {
-        activeLoans = await Context.Loans
-            .Include(l => l.Book)
-            .Include(l => l.Member)
-            .Where(l => l.ReturnDate == null)
-            .ToListAsync();
-
-        availableBooks = await Context.Books
-            .Where(b => b.IsAvailable)
-            .ToListAsync();
-
-        allMembers = await Context.Members.ToListAsync();
+        activeLoans = await LoanRepo.GetActiveLoansAsync();
+        availableBooks = (await BookRepo.GetAllBooksAsync()).Where(b => b.IsAvailable);
+        allMembers = await MemberRepo.GetAllMembersAsync();
     }
 
     private async Task CreateLoan()
@@ -126,15 +120,16 @@ else
             return;
         }
 
-        var book = await Context.Books.FindAsync(selectedBookId);
-        var member = await Context.Members.FindAsync(selectedMemberId);
+        var book = await BookRepo.GetByIdAsync(selectedBookId);
+        var member = await MemberRepo.GetByIdAsync(selectedMemberId);
 
         if (book == null || member == null) return;
 
         var loan = new Loan(book, member, DateTime.Now, DateTime.Now.AddDays(14));
         book.IsAvailable = false;
-        Context.Loans.Add(loan);
-        await Context.SaveChangesAsync();
+        
+        await LoanRepo.AddLoanAsync(loan);
+        await BookRepo.UpdateBookAsync(book);
 
         message = $"Lån skapat: {book.Title} till {member.Name}";
         selectedBookId = 0;
@@ -146,8 +141,11 @@ else
     {
         loan.ReturnDate = DateTime.Now;
         if (loan.Book != null)
+        {
             loan.Book.IsAvailable = true;
-        await Context.SaveChangesAsync();
+            await BookRepo.UpdateBookAsync(loan.Book);
+        }
+        await LoanRepo.UpdateLoanAsync(loan);
         message = $"Returnerat: {loan.Book?.Title}";
         await LoadData();
     }

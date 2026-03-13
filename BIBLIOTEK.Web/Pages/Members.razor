@@ -1,6 +1,6 @@
 @page "/members"
-@inject LibraryContext Context
-@using Microsoft.EntityFrameworkCore
+@inject IMemberRepository MemberRepo
+@using BIBLIOTEK.Core
 
 <PageTitle>Medlemmar</PageTitle>
 
@@ -57,6 +57,7 @@ else
                 <th>E-post</th>
                 <th>Medlem sedan</th>
                 <th>Aktiva lån</th>
+                <th>Åtgärd</th>
             </tr>
         </thead>
         <tbody>
@@ -72,6 +73,9 @@ else
                             @member.Loans.Count(l => l.ReturnDate == null)
                         </span>
                     </td>
+                    <td>
+                        <a href="members/@member.Id" class="btn btn-sm btn-outline-primary">Detaljer</a>
+                    </td>
                 </tr>
             }
         </tbody>
@@ -79,7 +83,7 @@ else
 }
 
 @code {
-    private List<Member>? members;
+    private IEnumerable<Member>? members;
     private bool showForm = false;
     private Member newMember = new();
 
@@ -90,9 +94,7 @@ else
 
     private async Task LoadMembers()
     {
-        members = await Context.Members
-            .Include(m => m.Loans)
-            .ToListAsync();
+        members = await MemberRepo.GetAllMembersAsync();
     }
 
     private void ShowAddForm()
@@ -104,8 +106,7 @@ else
     private async Task AddMember()
     {
         newMember.MemberSince = DateTime.Now;
-        Context.Members.Add(newMember);
-        await Context.SaveChangesAsync();
+        await MemberRepo.AddMemberAsync(newMember);
         newMember = new Member();
         showForm = false;
         await LoadMembers();

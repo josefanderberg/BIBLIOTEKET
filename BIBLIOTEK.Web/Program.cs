@@ -13,6 +13,8 @@ builder.Services.AddServerSideBlazor();
 // Registrera Entity Framework och Repository
 builder.Services.AddDbContext<LibraryContext>();
 builder.Services.AddScoped<IBookRepository, BookRepository>();
+builder.Services.AddScoped<IMemberRepository, MemberRepository>();
+builder.Services.AddScoped<ILoanRepository, LoanRepository>();
 
 var app = builder.Build();
 

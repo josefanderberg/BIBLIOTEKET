@@ -1,7 +1,9 @@
 @page "/books/{Id:int}"
-@inject LibraryContext Context
+@inject IBookRepository BookRepo
+@inject IMemberRepository MemberRepo
+@inject ILoanRepository LoanRepo
 @inject NavigationManager Navigation
-@using Microsoft.EntityFrameworkCore
+@using BIBLIOTEK.Core
 
 <PageTitle>Bokdetaljer</PageTitle>
 
@@ -113,22 +115,23 @@ else
     public int Id { get; set; }
 
     private Book? book;
-    private List<Member> members = new();
+    private IEnumerable<Member> members = new List<Member>();
     private int selectedMemberId;
     private string message = "";
 
     protected override async Task OnInitializedAsync()
     {
         await LoadBook();
-        members = await Context.Members.ToListAsync();
+        members = await MemberRepo.GetAllMembersAsync();
     }
 
     private async Task LoadBook()
     {
-        book = await Context.Books
-            .Include(b => b.Loans)
-            .ThenInclude(l => l.Member)
-            .FirstOrDefaultAsync(b => b.Id == Id);
+        book = await BookRepo.GetByIdAsync(Id);
+        if (book != null)
+        {
+            book.Loans = (await LoanRepo.GetLoansByBookIdAsync(Id)).ToList();
+        }
     }
 
     private async Task BorrowBook()
@@ -139,13 +142,14 @@ else
             return;
         }
 
-        var member = await Context.Members.FindAsync(selectedMemberId);
+        var member = await MemberRepo.GetByIdAsync(selectedMemberId);
         if (member == null || book == null) return;
 
         var loan = new Loan(book, member, DateTime.Now, DateTime.Now.AddDays(14));
         book.IsAvailable = false;
-        Context.Loans.Add(loan);
-        await Context.SaveChangesAsync();
+        
+        await LoanRepo.AddLoanAsync(loan);
+        await BookRepo.UpdateBookAsync(book);
 
         message = $"Boken har lånats till {member.Name}!";
         await LoadBook();
@@ -155,15 +159,15 @@ else
     {
         if (book == null) return;
 
-        var activeLoan = await Context.Loans
-            .Include(l => l.Member)
-            .FirstOrDefaultAsync(l => l.BookId == book.Id && l.ReturnDate == null);
+        var activeLoans = await LoanRepo.GetActiveLoansAsync();
+        var activeLoan = activeLoans.FirstOrDefault(l => l.BookId == book.Id);
 
         if (activeLoan != null)
         {
             activeLoan.ReturnDate = DateTime.Now;
             book.IsAvailable = true;
-            await Context.SaveChangesAsync();
+            await LoanRepo.UpdateLoanAsync(activeLoan);
+            await BookRepo.UpdateBookAsync(book);
             message = "Boken har returnerats!";
             await LoadBook();
         }

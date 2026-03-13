@@ -62,7 +62,8 @@ Book (1) ──── (*) Loan (*) ──── (1) Member
 | Hem | `/` | Välkomst + statistik (antal böcker, medlemmar, aktiva lån) |
 | Böcker | `/books` | Lista, sök, sortering, lägg till bok, ta bort |
 | Bokdetaljer | `/books/{id}` | Detaljerad info, lånehistorik, låna/returnera |
-| Medlemmar | `/members` | Lista med aktiva lån per medlem, registrera ny medlem |
+| Medlemmar | `/members` | Lista med aktiva lån per medlem, registrera ny medlem, länk till detaljer |
+| Medlemsdetaljer | `/members/{id}` | Visa medlemsinfo och fullständig lånehistorik |
 | Utlåning | `/loans` | Skapa nytt lån, aktiva lån, markering av försenade |
 
 ## Teknologi
@@ -71,13 +72,19 @@ Book (1) ──── (*) Loan (*) ──── (1) Member
 - **Entity Framework Core 9.0.2** (SQLite)
 - **Blazor Server**
 - **xUnit** (enhetstester)
+- **bUnit** (komponenttester)
 - **InMemory Database** (för testning)
 
 ## Tester
 
-Projektet innehåller enhetstester för:
-- Repository-operationer (CRUD)
-- Sökfunktionalitet
-- Databasintegrationer (lån + boktillgänglighet)
+Projektet innehåller omfattande tester för att säkerställa kvalitet:
+- **Repository-operationer**: CRUD-tester för Books och Members.
+- **Sökfunktionalitet**: Verifiering av sökning på titel, författare och namn.
+- **Databasintegrationer**: Tester för lån och boktillgänglighet.
+- **Komponenttester**: bUnit-tester för `BookCard` för att verifiera korrekt rendering av bokstatus.
 
 Kör alla tester med `dotnet test`.
+
+## Arkitektur
+
+Projektet följer **Repository Pattern** för att separera dataåtkomst från affärslogik. Detta gör koden mer testbar och lätt att underhålla. Varje entitet (Book, Member, Loan) har sitt eget repository.

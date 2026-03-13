@@ -1,0 +1,98 @@
+@page "/members/{Id:int}"
+@inject IMemberRepository MemberRepo
+@inject NavigationManager Navigation
+@using BIBLIOTEK.Core
+
+<PageTitle>Medlemsdetaljer</PageTitle>
+
+@if (member == null)
+{
+    <p><em>Laddar medlemsdetaljer...</em></p>
+}
+else
+{
+    <h1>👤 @member.Name</h1>
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Medlems-ID:</strong> @member.MemberId</p>
+                    <p><strong>E-post:</strong> @member.Email</p>
+                    <p><strong>Medlem sedan:</strong> @member.MemberSince.ToShortDateString()</p>
+                </div>
+                <div class="col-md-6">
+                    <div class="card bg-light">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Aktiva lån</h5>
+                            <p class="display-6">@member.Loans.Count(l => l.ReturnDate == null)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3>Lånehistorik</h3>
+    @if (member.Loans != null && member.Loans.Any())
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Bok</th>
+                    <th>Lånedatum</th>
+                    <th>Förfallodatum</th>
+                    <th>Returnerad</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var loan in member.Loans.OrderByDescending(l => l.LoanDate))
+                {
+                    <tr>
+                        <td>@loan.Book?.Title</td>
+                        <td>@loan.LoanDate.ToShortDateString()</td>
+                        <td>@loan.DueDate.ToShortDateString()</td>
+                        <td>@(loan.ReturnDate?.ToShortDateString() ?? "-")</td>
+                        <td>
+                            @if (loan.IsReturned)
+                            {
+                                <span class="badge bg-secondary">Returnerad</span>
+                            }
+                            else if (loan.IsOverdue)
+                            {
+                                <span class="badge bg-danger">Försenad!</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-info">Aktiv</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p><em>Ingen lånehistorik för denna medlem.</em></p>
+    }
+
+    <a href="members" class="btn btn-outline-secondary mt-3">← Tillbaka till medlemslistan</a>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Member? member;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMember();
+    }
+
+    private async Task LoadMember()
+    {
+        member = await MemberRepo.GetByIdAsync(Id);
+    }
+}
