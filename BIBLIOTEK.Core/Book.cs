@@ -1,13 +1,24 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace BIBLIOTEK.Core;
 
 public class Book : ISearchable
 {
     public int Id { get; set; }
+    [Required(ErrorMessage = "ISBN krävs")]
+    [RegularExpression(@"^(\d{10}|\d{13})$", ErrorMessage = "ISBN måste vara 10 eller 13 siffror")]
     public string ISBN { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Titel krävs")]
     public string Title { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Författare krävs")]
     public string Author { get; set; } = string.Empty;
-    public int PublishedYear { get; set; }
-    public bool IsAvailable { get; set; }    
+
+    [Range(1000, 2100, ErrorMessage = "Ogiltigt år")]
+    public int PublishedYear { get; set; } = DateTime.Now.Year;
+
+    public bool IsAvailable { get; set; } = true;    
     public ICollection<Loan> Loans { get; set; } = new List<Loan>();
 
 

@@ -1,10 +1,18 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace BIBLIOTEK.Core;
 
 public class Member : ISearchable
 {
     public int Id { get; set; }
+    [Required(ErrorMessage = "Medlems-ID krävs")]
     public string MemberId { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "Namn krävs")]
     public string Name { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "E-post krävs")]
+    [EmailAddress(ErrorMessage = "Ogiltig e-postadress")]
     public string Email { get; set; } = string.Empty;
     public DateTime MemberSince { get; set; }    
     public ICollection<Loan> Loans { get; set; } = new List<Loan>();
